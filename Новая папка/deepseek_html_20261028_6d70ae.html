@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Фоновое видео</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #111;
+    overflow: hidden;
+  }
+
+  #bgVideo {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 0;
+    background: #111;
+    pointer-events: none;
+    filter: blur(3px);
+    transform: scale(1.02);
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.15);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .content h1 {
+    font-size: clamp(26px, 8vw, 44px);
+    margin-bottom: 14px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+  }
+  .content p {
+    font-size: clamp(14px, 4vw, 18px);
+    opacity: .95;
+    margin-bottom: 28px;
+    max-width: 500px;
+    line-height: 1.5;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+  }
+
+  .content button {
+    padding: 14px 34px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .content button:active { background: rgba(255,255,255,0.35); }
+
+  .sound-toggle {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    z-index: 3;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+
+  /* ===== СКРИМЕР ===== */
+  #screamer {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    cursor: pointer;
+  }
+  #screamer.active {
+    display: flex;
+  }
+  #screamer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: shake 0.08s infinite;
+  }
+
+  @keyframes shake {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    25%  { transform: translate(-6px, 3px) rotate(-1deg); }
+    50%  { transform: translate(5px, -4px) rotate(1deg); }
+    75%  { transform: translate(-4px, -2px) rotate(-0.5deg); }
+    100% { transform: translate(3px, 4px) rotate(0.5deg); }
+  }
+</style>
+</head>
+<body>
+
+<video id="bgVideo" autoplay muted loop playsinline preload="auto">
+  <source src="ваше-видео.mp4" type="video/mp4">
+</video>
+
+<div id="overlay"></div>
+
+<div class="content">
+  <h1>Добро пожаловать</h1>
+  <p>Красивое фоновое видео, которое отлично смотрится на экране телефона</p>
+  <button id="scareBtn">Нажми меня</button>
+</div>
+
+<div class="sound-toggle" id="soundToggle">🔇</div>
+
+<!-- ===== СКРИМЕР ===== -->
+<div id="screamer">
+  <img src="IMG_20261028_121854_220.jpg" alt="">
+</div>
+
+<audio id="scareSound" src="fsdsdfhh.mp3" preload="auto"></audio>
+
+<script>
+  const video    = document.getElementById('bgVideo');
+  const soundEl  = document.getElementById('soundToggle');
+  const screamer = document.getElementById('screamer');
+  const scareBtn = document.getElementById('scareBtn');
+  const scareSnd = document.getElementById('scareSound');
+
+  function tryPlay() {
+    video.muted = true;
+    video.play().catch(() => {});
+  }
+  tryPlay();
+  document.addEventListener('touchstart', tryPlay, { once: true });
+  document.addEventListener('click', tryPlay, { once: true });
+
+  let muted = true;
+  soundEl.addEventListener('click', () => {
+    muted = !muted;
+    video.muted = muted;
+    soundEl.textContent = muted ? '🔇' : '🔊';
+    if (!muted) video.play().catch(() => {});
+  });
+
+  // ===== СКРИМЕР =====
+  function showScreamer() {
+    screamer.classList.add('active');
+
+    scareSnd.currentTime = 0;
+    scareSnd.volume = 1;
+    scareSnd.play().catch(() => {});
+
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+
+    setTimeout(hideScreamer, 2500);
+  }
+
+  function hideScreamer() {
+    screamer.classList.remove('active');
+    scareSnd.pause();
+    scareSnd.currentTime = 0;
+  }
+
+  scareBtn.addEventListener('click', showScreamer);
+  screamer.addEventListener('click', hideScreamer);
+</script>
+</body>
+</html>
